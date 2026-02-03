@@ -60,7 +60,7 @@ namespace MVVMBattleshipGame.PlacementPhase
 
             // READY FIELDS
             PlayerField = new BattleFieldGridViewModel();
-            ComputerField = new BattleFieldGridViewModel();
+            ComputerField = new BattleFieldGridViewModel(isPlayer: false);
 
             // HANDLE CELL CLICK EVENT
             PlayerField.CellClicked += OnCellClick;

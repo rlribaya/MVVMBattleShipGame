@@ -20,6 +20,7 @@
                    Padding="5"
                    />
         <grid:BattleField DockPanel.Dock="Left"
+                          Margin="10"
                           DataContext="{Binding PlayerField}"
             />
         <Grid DockPanel.Dock="Right">

@@ -3,10 +3,41 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:MVVMBattleshipGame.BattlePhase"
+        xmlns:local="clr-namespace:MVVMBattleshipGame.BattlePhase" xmlns:grid="clr-namespace:MVVMBattleshipGame.Grid"
         mc:Ignorable="d"
-        Title="BattlePhaseWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Title="BattlePhaseWindow" Height="500" Width="1000">
+    <DockPanel>
+        <Grid DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0"
+                       Text="YOU"
+                       Style="{StaticResource HeaderTextBlockStyle}"
+                       />
+            <TextBlock Grid.Column="1"
+                       Text="VS"
+                       Style="{StaticResource HeaderTextBlockStyle}"
+                       />
+            <TextBlock Grid.Column="2"
+                       Text="COMPUTER"
+                       Style="{StaticResource HeaderTextBlockStyle}"
+                       />
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <grid:BattleField Grid.Column="0"
+                              DataContext="{Binding PlayerField}"
+                              IsHitTestVisible="False"
+                              />
+            <grid:BattleField Grid.Column="1"
+                              DataContext="{Binding ComputerField}"
+                              />
+        </Grid>
+    </DockPanel>
 </Window>

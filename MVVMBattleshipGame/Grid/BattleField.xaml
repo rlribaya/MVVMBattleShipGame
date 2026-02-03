@@ -10,6 +10,13 @@
              x:Name="BattleFieldRoot"
              d:DataContext="{d:DesignInstance local:BattleFieldGridViewModel, IsDesignTimeCreatable=True}"
              >
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Grid/CellView.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Border HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="2 0 0 2" BorderBrush="Gray">
         <ItemsControl ItemsSource="{Binding Cells}">
             <ItemsControl.ItemsPanel>
@@ -19,25 +26,14 @@
             </ItemsControl.ItemsPanel>
 
             <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="{x:Type local:CellModel}"> <!--This Is Essentially the CellView-->
-                    <Button BorderBrush="Gray"
-                            BorderThickness="0 2 2 0"
+                <DataTemplate DataType="{x:Type local:CellModel}">
+                    <Button Style="{StaticResource CellTemplateStyle}"
                             Width="40"
                             Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}"
                             Command="{Binding DataContext.CellClickedCommand, ElementName=BattleFieldRoot}"
                             CommandParameter="{Binding}"
-                            >
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Background" Value="Black"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasShip}" Value="True">
-                                        <Setter Property="Background" Value="#BBB"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                            IsEnabled="{Binding CanBeAttacked}"
+                            />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

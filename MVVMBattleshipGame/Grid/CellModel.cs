@@ -1,22 +1,16 @@
 ﻿using MVVMBattleshipGame.Common;
 using MVVMBattleshipGame.Ship;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MVVMBattleshipGame.Grid
 {
     public class CellModel : MyINotifyPropertyChanged
     {
-        public CellModel(int x, int y)
+        public CellModel(int x, int y, bool isFogged = false)
         {
             // Initialize Default Values
             _isHit = false;
             _ship = null;
-            _isFogged = true;
+            _isFogged = isFogged;
             X = x;
             Y = y;
         }
@@ -29,13 +23,16 @@ namespace MVVMBattleshipGame.Grid
             get { return _isHit; }
             set
             {
-                if (_isHit != value)
+                if (_isHit != value && CanBeAttacked)
                 {
                     _isHit = value;
                     OnPropertyChanged(nameof(IsHit));
+                    OnPropertyChanged(nameof(IsFogged));
+                    OnPropertyChanged(nameof(CanBeAttacked));
                 }
             }
         }
+        public bool CanBeAttacked => !IsHit;
         // SHIP
         private ShipModel? _ship;
         public ShipModel? Ship
@@ -47,6 +44,7 @@ namespace MVVMBattleshipGame.Grid
                 {
                     _ship = value;
                     OnPropertyChanged(nameof(Ship));
+                    OnPropertyChanged(nameof(HasShip));
                 }
             }
         }
@@ -56,7 +54,7 @@ namespace MVVMBattleshipGame.Grid
         private bool _isFogged;
         public bool IsFogged
         {
-            get { return _isFogged; }
+            get { return IsHit ? false : _isFogged; }
             set
             {
                 if (_isFogged != value)

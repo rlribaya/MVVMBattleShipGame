@@ -1,11 +1,6 @@
 ﻿using MVVMBattleshipGame.Common;
-using System;
-using System.Collections.Generic;
+using MVVMBattleshipGame.Ship;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MVVMBattleshipGame.Grid
 {
@@ -32,7 +27,8 @@ namespace MVVMBattleshipGame.Grid
         #endregion
 
         #region CONSTRUCTOR
-        public BattleFieldGridViewModel()
+        public BattleFieldGridViewModel() : this(true) { }
+        public BattleFieldGridViewModel(bool isPlayer)
         {
             // COMMANDS
             CellClickedCommand = new RelayCommand<CellModel>(OnCellClick);
@@ -43,16 +39,13 @@ namespace MVVMBattleshipGame.Grid
             {
                 for (int x = 0; x < 10; x++)
                 {
-                    Cells.Add(new CellModel(x, y));
+                    Cells.Add(new CellModel(x, y, !isPlayer));
                 }
             }
         }
         #endregion
 
         #region FUNCTIONALITY
-        // CELL CLICK
-        
-
         // CELL OBTAINING FUNCTIONALITY
         public CellModel? GetCell(int x, int y)
         {
@@ -69,6 +62,27 @@ namespace MVVMBattleshipGame.Grid
         {
             return y * 10 + x;
         }
+        // SHIP HIT FUNCTIONALITY
+        public void HitCell(int x, int y) => HitCell(GetCell(x, y));
+        public void HitCell(CellModel cell)
+        {
+            if (cell == null) return;
+
+            // HIT THE CELL
+            cell.IsHit = true;
+
+            // CHECK IF SHIP
+            if (cell.HasShip)
+            {
+                cell.Ship.Hits++;
+
+                // IF SHIP IS SUNK
+                if (cell.Ship.IsSunk)
+                {
+                    RaiseShipHit(new ShipSunkEventArgs(cell.Ship));
+                }
+            }
+        }
         #endregion
 
         #region EVENTS
@@ -78,6 +92,8 @@ namespace MVVMBattleshipGame.Grid
             if (cell == null) return;
             CellClicked?.Invoke(this, new CellClickEventArgs(cell.X, cell.Y));
         }
+        public event EventHandler<ShipSunkEventArgs>? ShipSunk;
+        private void RaiseShipHit(ShipSunkEventArgs e) => ShipSunk?.Invoke(this, e);
         #endregion
     }
     public class CellClickEventArgs : EventArgs
@@ -88,6 +104,14 @@ namespace MVVMBattleshipGame.Grid
         {
             X = x;
             Y = y;
+        }
+    }
+    public class ShipSunkEventArgs : EventArgs
+    {
+        public ShipModel Ship { get; set; }
+        public ShipSunkEventArgs(ShipModel ship)
+        {
+            Ship = ship;
         }
     }
 }

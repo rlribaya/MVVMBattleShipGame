@@ -6,6 +6,14 @@
     <Style TargetType="Control">
         <Setter Property="FontFamily" Value="Segoe UI"/>
     </Style>
+    <Style x:Key="HeaderTextBlockStyle" TargetType="TextBlock">
+        <Setter Property="TextAlignment" Value="Center"/>
+        <Setter Property="FontFamily" Value="Segoe UI Semibold"/>
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="Padding" Value="5"/>
+        <Setter Property="Background" Value="#333"/>
+        <Setter Property="Foreground" Value="#E4E4DF"/>
+    </Style>
     <Style x:Key="ThickArrowStyle" TargetType="Path">
         <Setter Property="Data" Value="M 2,2 L 12,12 L 2,22"/>
         <Setter Property="Stroke" Value="Black"/>

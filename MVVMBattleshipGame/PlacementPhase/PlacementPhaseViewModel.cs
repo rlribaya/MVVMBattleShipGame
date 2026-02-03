@@ -1,131 +1,131 @@
-﻿using MVVMBattleshipGame.Common;
+﻿using MVVMBattleshipGame.BattlePhase;
+using MVVMBattleshipGame.Common;
 using MVVMBattleshipGame.Grid;
 using MVVMBattleshipGame.Ship;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MVVMBattleshipGame.PlacementPhase
 {
-	public enum Direction
-	{
-		North,
-		South,
-		East,
-		West
-	}
+    public enum Direction
+    {
+        North,
+        South,
+        East,
+        West
+    }
     public class PlacementPhaseViewModel : MyINotifyPropertyChanged
-	{
+    {
         #region PROPERTIES
-		// FLAG FOR WHEN THE END OF THE SHIP IS PLACED
+        // FLAG FOR WHEN THE END OF THE SHIP IS PLACED
         private bool _isPartlyPlaced;
-		public bool IsPartlyPlaced
-		{
-			get { return _isPartlyPlaced; }
-			set
-			{
-				if (_isPartlyPlaced != value)
-				{
-					_isPartlyPlaced = value;
-					OnPropertyChanged(nameof(IsPartlyPlaced));
-				}
-			}
-		}
-		// SHIP THAT IS CURRENTLY BEING PLACED
-		private ShipModel _currentShip;
-		public ShipModel CurrentShip
-		{
-			get { return _currentShip; }
-			set
-			{
-				if (_currentShip != value)
-				{
-					_currentShip = value;
-					OnPropertyChanged(nameof(CurrentShip));
-				}
-			}
-		}
-		public BattleFieldGridViewModel PlayerField { get; }
-		public BattleFieldGridViewModel ComputerField { get; }
-		#endregion
+        public bool IsPartlyPlaced
+        {
+            get { return _isPartlyPlaced; }
+            set
+            {
+                if (_isPartlyPlaced != value)
+                {
+                    _isPartlyPlaced = value;
+                    OnPropertyChanged(nameof(IsPartlyPlaced));
+                }
+            }
+        }
+        // SHIP THAT IS CURRENTLY BEING PLACED
+        private ShipModel _currentShip;
+        public ShipModel CurrentShip
+        {
+            get { return _currentShip; }
+            set
+            {
+                if (_currentShip != value)
+                {
+                    _currentShip = value;
+                    OnPropertyChanged(nameof(CurrentShip));
+                }
+            }
+        }
+        public BattleFieldGridViewModel PlayerField { get; }
+        public BattleFieldGridViewModel ComputerField { get; }
+        #endregion
 
-		#region COMMANDS
-		public RelayCommand<Direction> PlaceShipCommand { get; }
+        #region COMMANDS/ACTIONS
+        public RelayCommand<Direction> PlaceShipCommand { get; }
+        public Action? CloseAction { get; set; }
         #endregion
 
         #region CONSTRUCTOR
         public PlacementPhaseViewModel()
         {
-			// COMMANDS
-			PlaceShipCommand = new RelayCommand<Direction>(PlaceShip, CanPlaceShip);
+            // COMMANDS
+            PlaceShipCommand = new RelayCommand<Direction>(PlaceShip, CanPlaceShip);
 
-			// READY FIELDS
-			PlayerField = new BattleFieldGridViewModel();
-			ComputerField = new BattleFieldGridViewModel();
+            // READY FIELDS
+            PlayerField = new BattleFieldGridViewModel();
+            ComputerField = new BattleFieldGridViewModel();
 
             // HANDLE CELL CLICK EVENT
             PlayerField.CellClicked += OnCellClick;
 
-			// READY THE FIRST SHIP TO BE PLACED ON THE BOARD
-			_currentShip = new ShipModel(ShipType.Carrier);
+            // READY THE FIRST SHIP TO BE PLACED ON THE BOARD
+            _currentShip = new ShipModel(ShipType.Carrier);
         }
         #endregion
 
         #region FUNCTIONALITY
+        // PLAYER PLACING FLAG
+        private bool _isPlayerPlacing = true;
+
         // COORDINATES OF THE LAST CLICKED CELL
         private int _lastClickedX = -1;
         private int _lastClickedY = -1;
 
-		// COORDINATES OF VALID STARTING CELL
-		private int _startX = -1;
-		private int _startY = -1;
+        // COORDINATES OF VALID STARTING CELL
+        private int _startX = -1;
+        private int _startY = -1;
 
         // CELL CLICK
         private void OnCellClick(object? sender, CellClickEventArgs e)
         {
-			IsPartlyPlaced = false;
-			// GET CELL COORDS
+            IsPartlyPlaced = false;
+            // GET CELL COORDS
             _lastClickedX = e.X;
-			_lastClickedY = e.Y;
+            _lastClickedY = e.Y;
 
-			// CHECK IF POSSIBLE TO PLACE IN AT LEAST ONE DIRECTION FIRST
-			if (CanPlaceShip(Direction.North)
-				|| CanPlaceShip(Direction.South)
-				|| CanPlaceShip(Direction.East)
-				||  CanPlaceShip(Direction.West))
-			{
-				// PROCEED TO PARTLY PLACE THE SHIP (AWAIT FOR DIRECTION INPUT)
-				IsPartlyPlaced = true;
-				_startX = _lastClickedX;
-				_startY = _lastClickedY;
-				PlaceShipCommand.RaiseCanExecuteChanged(); // UPDATE BUTTONS
+            // CHECK IF POSSIBLE TO PLACE IN AT LEAST ONE DIRECTION FIRST
+            if (CanPlaceShip(Direction.North)
+                || CanPlaceShip(Direction.South)
+                || CanPlaceShip(Direction.East)
+                || CanPlaceShip(Direction.West))
+            {
+                // PROCEED TO PARTLY PLACE THE SHIP (AWAIT FOR DIRECTION INPUT)
+                IsPartlyPlaced = true;
+                _startX = _lastClickedX;
+                _startY = _lastClickedY;
+                PlaceShipCommand.RaiseCanExecuteChanged(); // UPDATE BUTTONS
             }
         }
         // CHECK FOR VIABLE DIRECTION
         private bool CanPlaceShip(Direction direction)
         {
-			if (CurrentShip == null || _lastClickedX == -1 || _lastClickedY == -1) return false;
-            
-			// HOLD VALUES
-			int startX = _lastClickedX;
+            if (CurrentShip == null || _lastClickedX == -1 || _lastClickedY == -1) return false;
+
+            // HOLD VALUES
+            int startX = _lastClickedX;
             int startY = _lastClickedY;
 
             // QUICK BOUNDS CHECK
             switch (direction)
-			{
-				case Direction.North: if (startY - (CurrentShip.Length - 1) < 0) return false; break;
-				case Direction.South: if (startY + (CurrentShip.Length - 1) > 9) return false; break;
-				case Direction.East: if (startX + (CurrentShip.Length - 1) > 9) return false; break;
-				case Direction.West: if (startX - (CurrentShip.Length - 1) < 0) return false; break;
-			}
+            {
+                case Direction.North: if (startY - (CurrentShip.Length - 1) < 0) return false; break;
+                case Direction.South: if (startY + (CurrentShip.Length - 1) > 9) return false; break;
+                case Direction.East: if (startX + (CurrentShip.Length - 1) > 9) return false; break;
+                case Direction.West: if (startX - (CurrentShip.Length - 1) < 0) return false; break;
+            }
 
-			// ITERATIVELY CHECK EACH CELL THE OTHER PARTS OF THE SHIP WOULD OCCUPY
-			int currentX = startX, currentY = startY;
+            // ITERATIVELY CHECK EACH CELL THE OTHER PARTS OF THE SHIP WOULD OCCUPY
+            int currentX = startX, currentY = startY;
             for (int i = 0; i < CurrentShip.Length; i++)
-			{
-				// CELL CHECKING MOVEMENT
+            {
+                // CELL CHECKING MOVEMENT
                 switch (direction)
                 {
                     case Direction.North: currentY = startY - i; break;
@@ -133,12 +133,12 @@ namespace MVVMBattleshipGame.PlacementPhase
                     case Direction.East: currentX = startX + i; break;
                     case Direction.West: currentX = startX - i; break;
                 }
-				// CHECK TILE
-				if (!IsValidTile(currentX, currentY)) return false;
+                // CHECK TILE
+                if (!IsValidTile(currentX, currentY)) return false;
             }
             return true;
         }
-		// CHECK IF TILE IS VALID
+        // CHECK IF TILE IS VALID
         private bool IsValidTile(int x, int y)
         {
             for (int offsetX = -1; offsetX <= 1; offsetX++)
@@ -148,10 +148,8 @@ namespace MVVMBattleshipGame.PlacementPhase
                     int _x = x + offsetX;
                     int _y = y + offsetY;
 
-                    // 1. GetCell handles the out-of-bounds check (returns null)
-                    var cell = PlayerField.GetCell(_x, _y);
+                    var cell = _isPlayerPlacing ? PlayerField.GetCell(_x, _y) : ComputerField.GetCell(_x, _y);
 
-                    // 2. If the cell exists and has a ship, the area is NOT clear
                     if (cell != null && cell.HasShip)
                     {
                         return false;
@@ -161,14 +159,15 @@ namespace MVVMBattleshipGame.PlacementPhase
             return true;
         }
         // PLACE THE SHIP
-        private void PlaceShip(Direction direction) {
-			if (!IsPartlyPlaced) return; // SHIP MUST BE PARTLY PLACED FIRST
+        private void PlaceShip(Direction direction)
+        {
+            if (_isPlayerPlacing && !IsPartlyPlaced) return; // SHIP MUST BE PARTLY PLACED FIRST FOR PLAYER
 
-			// ASSUMING SHIP IS VALID IN DIRECTION (BUTTON AUTOMATICALLY DISABLED)
-			// PLACE NOW THE SHIP IN THE CELL
-			int currentX = _startX, currentY = _startY;
-			for (int i = 0; i < CurrentShip.Length; i++)
-			{
+            // ASSUMING SHIP IS VALID IN DIRECTION (BUTTON AUTOMATICALLY DISABLED)
+            // PLACE NOW THE SHIP IN THE CORRESPONDING CELLS
+            int currentX = _startX, currentY = _startY;
+            for (int i = 0; i < CurrentShip.Length; i++)
+            {
                 switch (direction)
                 {
                     case Direction.North: currentY = _startY - i; break;
@@ -176,20 +175,21 @@ namespace MVVMBattleshipGame.PlacementPhase
                     case Direction.East: currentX = _startX + i; break;
                     case Direction.West: currentX = _startX - i; break;
                 }
-				// CELL SHOULDN'T BE NULL HERE AS WE CHECKED IT ALREADY
-				PlayerField.GetCell(currentX, currentY).Ship = CurrentShip;
+                // CELL SHOULDN'T BE NULL HERE AS WE CHECKED IT ALREADY
+                var cell = _isPlayerPlacing ? PlayerField.GetCell(currentX, currentY) : ComputerField.GetCell(currentX, currentY);
+                cell.Ship = CurrentShip;
             }
-			NextShipPlacement();
-		}
+            if (_isPlayerPlacing) NextShipPlacement();
+        }
         // NEXT SHIP PLACEMENT FUNCTIONALITY
         private void NextShipPlacement()
         {
-			// RESET DEPENDENT VALUES
-			IsPartlyPlaced = false;
-			_lastClickedX = -1;
-			_lastClickedY = -1;
-			_startX = -1;
-			_startY = -1;
+            // RESET DEPENDENT VALUES
+            IsPartlyPlaced = false;
+            _lastClickedX = -1;
+            _lastClickedY = -1;
+            _startX = -1;
+            _startY = -1;
 
             CurrentShip = CurrentShip.ShipType switch
             {
@@ -202,20 +202,71 @@ namespace MVVMBattleshipGame.PlacementPhase
 
             if (CurrentShip == null)
             {
-                // Transition to Battle Phase logic here
+                // PLAYER FINISHES SHIP PLACEMENT SO UNSUBSCRIBE
+                PlayerField.CellClicked -= OnCellClick;
+
+                // COMPUTER PLACES SHIPS
+                _isPlayerPlacing = false;
+                ComputerPlaceShips();
+
+                // START BATTLE PHASE
+                var battlePhaseViewModel = new BattlePhaseViewModel(PlayerField, ComputerField);
+                var battleWindow = new BattlePhaseWindow(battlePhaseViewModel);
+                battleWindow.Show();
+                CloseAction?.Invoke();
             }
+        }
+        // COMPUTER PICK RANDOMIZATION FUNCTIONALITY
+        private void ComputerPlaceShips()
+        {
+            List<Direction> possibleDirections = new List<Direction>();
+            Random random = new Random();
+
+            // CREATE NEW SHIP
+            CurrentShip = new ShipModel(ShipType.Carrier);
+
+            // SHIP PLACEMENT LOOP
+            do
+            {
+                // LOCATION CHOOSE LOOP
+                do
+                {
+                    possibleDirections.Clear();
+                    // COMPUTER CHOOSES A RANDOM LOCATION
+                    int x = random.Next(10);
+                    int y = random.Next(10);
+                    _lastClickedX = x;
+                    _lastClickedY = y;
+                    // CHECK VALID DIRECTIONS
+                    if (CanPlaceShip(Direction.North)) possibleDirections.Add(Direction.North);
+                    if (CanPlaceShip(Direction.South)) possibleDirections.Add(Direction.South);
+                    if (CanPlaceShip(Direction.East)) possibleDirections.Add(Direction.East);
+                    if (CanPlaceShip(Direction.West)) possibleDirections.Add(Direction.West);
+                }
+                while (possibleDirections.Count == 0); // CHOOSE AGAIN IF NO POSSIBLE DIRECTIONS
+
+                // CONFIRM START COORDS
+                _startX = _lastClickedX;
+                _startY = _lastClickedY;
+
+                // RANDOMLY CHOOSE ONE OF THE POSSIBLE DIRECTIONS
+                int dirIndex = random.Next(possibleDirections.Count);
+
+                // PLACE SHIP
+                PlaceShip(possibleDirections[dirIndex]);
+
+                // GET NEXT SHIP
+                CurrentShip = CurrentShip.ShipType switch
+                {
+                    ShipType.Carrier => new ShipModel(ShipType.Battleship),
+                    ShipType.Battleship => new ShipModel(ShipType.Cruiser),
+                    ShipType.Cruiser => new ShipModel(ShipType.Submarine),
+                    ShipType.Submarine => new ShipModel(ShipType.Destroyer),
+                    _ => null // NO MORE SHIPS TO PLACE
+                };
+            }
+            while (CurrentShip != null); // LOOP WHILE THERE ARE SHIPS TO PLACE
         }
         #endregion
     }
 }
-
-/*
- public enum ShipType
-    {
-        Carrier, // 5
-        Battleship, // 4
-        Cruiser, // 3
-        Submarine, // 3
-        Destroyer // 2
-    }
- */

@@ -1,0 +1,46 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style x:Key="CellTemplateStyle" TargetType="Button">
+        <Setter Property="Background" Value="Black"/>
+        <Setter Property="BorderBrush" Value="Gray"/>
+        <Setter Property="BorderThickness" Value="0 2 2 0"/>
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Ellipse x:Name="HitVisual"
+                                 Fill="Red"
+                                 Margin="10"
+                                 Visibility="Collapsed"
+                                 />
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <!--HOVER-->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                        </Trigger>
+                        <!--WILL BE DISABLED WHEN HIT-->
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="HitVisual" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <!--SHIP VISUAL-->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding HasShip}" Value="True"/>
+                                <Condition Binding="{Binding IsFogged}" Value="False"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter TargetName="border" Property="Background" Value="#BBB"/>
+                        </MultiDataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

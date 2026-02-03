@@ -1,4 +1,5 @@
 ﻿using MVVMBattleshipGame.Common;
+using MVVMBattleshipGame.PlacementPhase;
 using MVVMBattleshipGame.Ship;
 using System.Collections.ObjectModel;
 
@@ -62,6 +63,81 @@ namespace MVVMBattleshipGame.Grid
         {
             return y * 10 + x;
         }
+        // CELL PLACEMENT FUNCTIONALITY
+        // CHECK IF CAN PLACE SHIP
+        public bool CanPlaceShip(int startX, int startY, Direction direction, ShipModel ship)
+        {
+            if (ship == null) return false;
+
+            // QUICK BOUNDS CHECK
+            switch (direction)
+            {
+                case Direction.North: if (startY - (ship.Length - 1) < 0) return false; break;
+                case Direction.South: if (startY + (ship.Length - 1) > 9) return false; break;
+                case Direction.East: if (startX + (ship.Length - 1) > 9) return false; break;
+                case Direction.West: if (startX - (ship.Length - 1) < 0) return false; break;
+            }
+
+            // ITERATIVELY CHECK EACH CELL THE OTHER PARTS OF THE SHIP WOULD OCCUPY
+            int currentX = startX, currentY = startY;
+            for (int i = 0; i < ship.Length; i++)
+            {
+                // CELL CHECKING MOVEMENT
+                switch (direction)
+                {
+                    case Direction.North: currentY = startY - i; break;
+                    case Direction.South: currentY = startY + i; break;
+                    case Direction.East: currentX = startX + i; break;
+                    case Direction.West: currentX = startX - i; break;
+                }
+                // CHECK TILE
+                if (!IsValidTile(currentX, currentY)) return false;
+            }
+            return true;
+        }
+        // CHECK IF TILE IS VALID
+        private bool IsValidTile(int x, int y)
+        {
+            for (int offsetX = -1; offsetX <= 1; offsetX++)
+            {
+                for (int offsetY = -1; offsetY <= 1; offsetY++)
+                {
+                    int _x = x + offsetX;
+                    int _y = y + offsetY;
+
+                    var cell = GetCell(_x, _y);
+
+                    if (cell != null && cell.HasShip)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        // ACTUAL SHIP PLACEMENT
+        public void PlaceShip(int startX, int startY, Direction direction, ShipModel ship)
+        {
+            if (ship == null) return;
+
+            // ASSUMING SHIP PLACEMENT DIRECTION IS VALID,
+            // PLACE NOW THE SHIP IN THE CORRESPONDING CELLS
+            int currentX = startX, currentY = startY;
+            for (int i = 0; i < ship.Length; i++)
+            {
+                switch (direction)
+                {
+                    case Direction.North: currentY = startY - i; break;
+                    case Direction.South: currentY = startY + i; break;
+                    case Direction.East: currentX = startX + i; break;
+                    case Direction.West: currentX = startX - i; break;
+                }
+                var cell = GetCell(currentX, currentY);
+                if (cell != null) cell.Ship = ship;
+            }
+        }
+
+
         // SHIP HIT FUNCTIONALITY
         public void HitCell(int x, int y) => HitCell(GetCell(x, y));
         public void HitCell(CellModel cell)

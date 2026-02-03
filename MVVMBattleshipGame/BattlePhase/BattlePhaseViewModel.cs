@@ -1,9 +1,10 @@
-﻿using MVVMBattleshipGame.Grid;
+﻿using MVVMBattleshipGame.Common;
+using MVVMBattleshipGame.Grid;
 using System.Windows;
 
 namespace MVVMBattleshipGame.BattlePhase
 {
-    public class BattlePhaseViewModel
+    public class BattlePhaseViewModel : MyINotifyPropertyChanged
     {
         private int _playerShipCount = 5;
         private int _computerShipCount = 5;

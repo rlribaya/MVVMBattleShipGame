@@ -108,78 +108,29 @@ namespace MVVMBattleshipGame.PlacementPhase
         {
             if (CurrentShip == null || _lastClickedX == -1 || _lastClickedY == -1) return false;
 
-            // HOLD VALUES
-            int startX = _lastClickedX;
-            int startY = _lastClickedY;
-
-            // QUICK BOUNDS CHECK
-            switch (direction)
+            if (_isPlayerPlacing)
             {
-                case Direction.North: if (startY - (CurrentShip.Length - 1) < 0) return false; break;
-                case Direction.South: if (startY + (CurrentShip.Length - 1) > 9) return false; break;
-                case Direction.East: if (startX + (CurrentShip.Length - 1) > 9) return false; break;
-                case Direction.West: if (startX - (CurrentShip.Length - 1) < 0) return false; break;
-            }
-
-            // ITERATIVELY CHECK EACH CELL THE OTHER PARTS OF THE SHIP WOULD OCCUPY
-            int currentX = startX, currentY = startY;
-            for (int i = 0; i < CurrentShip.Length; i++)
+                return PlayerField.CanPlaceShip(_lastClickedX, _lastClickedY, direction, CurrentShip);
+            } 
+            else
             {
-                // CELL CHECKING MOVEMENT
-                switch (direction)
-                {
-                    case Direction.North: currentY = startY - i; break;
-                    case Direction.South: currentY = startY + i; break;
-                    case Direction.East: currentX = startX + i; break;
-                    case Direction.West: currentX = startX - i; break;
-                }
-                // CHECK TILE
-                if (!IsValidTile(currentX, currentY)) return false;
+                return ComputerField.CanPlaceShip(_lastClickedX, _lastClickedY, direction, CurrentShip);
             }
-            return true;
-        }
-        // CHECK IF TILE IS VALID
-        private bool IsValidTile(int x, int y)
-        {
-            for (int offsetX = -1; offsetX <= 1; offsetX++)
-            {
-                for (int offsetY = -1; offsetY <= 1; offsetY++)
-                {
-                    int _x = x + offsetX;
-                    int _y = y + offsetY;
-
-                    var cell = _isPlayerPlacing ? PlayerField.GetCell(_x, _y) : ComputerField.GetCell(_x, _y);
-
-                    if (cell != null && cell.HasShip)
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
         }
         // PLACE THE SHIP
         private void PlaceShip(Direction direction)
         {
             if (_isPlayerPlacing && !IsPartlyPlaced) return; // SHIP MUST BE PARTLY PLACED FIRST FOR PLAYER
 
-            // ASSUMING SHIP IS VALID IN DIRECTION (BUTTON AUTOMATICALLY DISABLED)
-            // PLACE NOW THE SHIP IN THE CORRESPONDING CELLS
-            int currentX = _startX, currentY = _startY;
-            for (int i = 0; i < CurrentShip.Length; i++)
+            if (_isPlayerPlacing && IsPartlyPlaced)
             {
-                switch (direction)
-                {
-                    case Direction.North: currentY = _startY - i; break;
-                    case Direction.South: currentY = _startY + i; break;
-                    case Direction.East: currentX = _startX + i; break;
-                    case Direction.West: currentX = _startX - i; break;
-                }
-                // CELL SHOULDN'T BE NULL HERE AS WE CHECKED IT ALREADY
-                var cell = _isPlayerPlacing ? PlayerField.GetCell(currentX, currentY) : ComputerField.GetCell(currentX, currentY);
-                cell.Ship = CurrentShip;
+                PlayerField.PlaceShip(_startX, _startY, direction, CurrentShip);
+                NextShipPlacement();
             }
-            if (_isPlayerPlacing) NextShipPlacement();
+            else
+            {
+                ComputerField.PlaceShip(_startX, _startY, direction, CurrentShip);
+            }
         }
         // NEXT SHIP PLACEMENT FUNCTIONALITY
         private void NextShipPlacement()

@@ -11,38 +11,27 @@ namespace MVVMBattleshipGame.Grid
 {
     public class CellModel : MyINotifyPropertyChanged
     {
-        public CellModel()
+        public CellModel(int x, int y)
         {
             // Initialize Default Values
-            _hasShip = false;
-            _isMiss = false;
+            _isHit = false;
             _ship = null;
             _isFogged = true;
+            X = x;
+            Y = y;
         }
-        // HasShip
-        private bool _hasShip;
-        public bool HasShip
-        {
-            get { return _hasShip; }
-            set
-            {
-                if (_hasShip != value)
-                {
-                    _hasShip = value;
-                    OnPropertyChanged(nameof(HasShip));
-                }
-            }
-        }
+        public int X { get; }
+        public int Y { get; }
         // IsHit
-        private bool _isMiss;
+        private bool _isHit;
         public bool IsHit
         {
-            get { return _isMiss; }
+            get { return _isHit; }
             set
             {
-                if (_isMiss != value)
+                if (_isHit != value)
                 {
-                    _isMiss = value;
+                    _isHit = value;
                     OnPropertyChanged(nameof(IsHit));
                 }
             }
@@ -61,6 +50,8 @@ namespace MVVMBattleshipGame.Grid
                 }
             }
         }
+        // HasShip
+        public bool HasShip => Ship != null;
         // IsFogged
         private bool _isFogged;
         public bool IsFogged

@@ -20,7 +20,7 @@
                    Padding="5"
                    />
         <grid:BattleField DockPanel.Dock="Left"
-                          Margin="5"
+                          DataContext="{Binding PlayerField}"
             />
         <Grid DockPanel.Dock="Right">
             <Grid.RowDefinitions>
@@ -36,17 +36,20 @@
                FontFamily="Segoe UI Semibold"
                FontSize="42"
                />
-                <TextBlock Text="4 tiles"
-               TextAlignment="Center"
-               FontStyle="Italic"
-               />
+                <TextBlock TextAlignment="Center"
+                           FontStyle="Italic">
+                    <TextBlock.Text>
+                        <Binding Path="CurrentShip.Length"
+                                 StringFormat="Length: {0} Tiles"/>
+                    </TextBlock.Text>
+                </TextBlock>
             </StackPanel>
             <Grid Grid.Row="1" Margin="50">
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Visible"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsPlacingShip}" Value="False">
+                            <DataTrigger Binding="{Binding IsPartlyPlaced}" Value="False">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -62,7 +65,13 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Row="1" Grid.Column="0" Style="{StaticResource TransparentButtonStyle}">
+                <!--WEST-->
+                <Button Grid.Row="1"
+                        Grid.Column="0"
+                        Style="{StaticResource TransparentButtonStyle}"
+                        Command="{Binding PlaceShipCommand}"
+                        CommandParameter="{x:Static local:Direction.West}"
+                        >
                     <Viewbox Stretch="Uniform">
                         <Path Style="{StaticResource ThickArrowStyle}">
                             <Path.LayoutTransform>
@@ -71,7 +80,13 @@
                         </Path>
                     </Viewbox>
                 </Button>
-                <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource TransparentButtonStyle}">
+                <!--NORTH-->
+                <Button Grid.Row="0"
+                        Grid.Column="1"
+                        Style="{StaticResource TransparentButtonStyle}"
+                        Command="{Binding PlaceShipCommand}"
+                        CommandParameter="{x:Static local:Direction.North}"
+                        >
                     <Viewbox Stretch="Uniform">
                         <Path Style="{StaticResource ThickArrowStyle}">
                             <Path.LayoutTransform>
@@ -80,12 +95,24 @@
                         </Path>
                     </Viewbox>
                 </Button>
-                <Button Grid.Row="1" Grid.Column="2" Style="{StaticResource TransparentButtonStyle}">
+                <!--EAST-->
+                <Button Grid.Row="1" 
+                        Grid.Column="2" 
+                        Style="{StaticResource TransparentButtonStyle}"
+                        Command="{Binding PlaceShipCommand}"
+                        CommandParameter="{x:Static local:Direction.East}"
+                        >
                     <Viewbox Stretch="Uniform">
                         <Path Style="{StaticResource ThickArrowStyle}"/>
                     </Viewbox>
                 </Button>
-                <Button Grid.Row="2" Grid.Column="1" Style="{StaticResource TransparentButtonStyle}" IsEnabled="False">
+                <!--SOUTH-->
+                <Button Grid.Row="2" 
+                        Grid.Column="1" 
+                        Style="{StaticResource TransparentButtonStyle}"
+                        Command="{Binding PlaceShipCommand}"
+                        CommandParameter="{x:Static local:Direction.South}"
+                        >
                     <Viewbox Stretch="Uniform">
                         <Path Style="{StaticResource ThickArrowStyle}">
                             <Path.LayoutTransform>
@@ -103,7 +130,7 @@
                     <Style TargetType="TextBlock">
                         <Setter Property="Visibility" Value="Visible"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsPlacingShip}" Value="True">
+                            <DataTrigger Binding="{Binding IsPartlyPlaced}" Value="True">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                             </DataTrigger>
                         </Style.Triggers>

@@ -7,9 +7,10 @@
              mc:Ignorable="d"
              Width="400"
              Height="400"
+             x:Name="BattleFieldRoot"
              d:DataContext="{d:DesignInstance local:BattleFieldGridViewModel, IsDesignTimeCreatable=True}"
              >
-    <Border HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="1 0 0 1" BorderBrush="Gray">
+    <Border HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="2 0 0 2" BorderBrush="Gray">
         <ItemsControl ItemsSource="{Binding Cells}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -18,13 +19,25 @@
             </ItemsControl.ItemsPanel>
 
             <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="{x:Type local:CellModel}">
-                    <Border BorderBrush="Gray"
-                            BorderThickness="0 1 1 0"
-                            Background="Black"
+                <DataTemplate DataType="{x:Type local:CellModel}"> <!--This Is Essentially the CellView-->
+                    <Button BorderBrush="Gray"
+                            BorderThickness="0 2 2 0"
                             Width="40"
-                            Height="{Binding Path=ActualWidth, RelativeSource={RelativeSource Self}}">
-                    </Border>
+                            Height="{Binding Path=Width, RelativeSource={RelativeSource Self}}"
+                            Command="{Binding DataContext.CellClickedCommand, ElementName=BattleFieldRoot}"
+                            CommandParameter="{Binding}"
+                            >
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Black"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasShip}" Value="True">
+                                        <Setter Property="Background" Value="#BBB"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

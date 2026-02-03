@@ -27,18 +27,34 @@ namespace MVVMBattleshipGame.Grid
         }
         #endregion
 
+        #region COMMANDS
+        public RelayCommand<CellModel> CellClickedCommand { get; }
+        #endregion
+
         #region CONSTRUCTOR
         public BattleFieldGridViewModel()
         {
+            // COMMANDS
+            CellClickedCommand = new RelayCommand<CellModel>(OnCellClick);
+
             // SET UP THE FIELD
             _cells = new ObservableCollection<CellModel>();
-            for (int i = 0; i < 10 * 10; i++) _cells.Add(new CellModel());
+            for (int y = 0; y < 10; y++)
+            {
+                for (int x = 0; x < 10; x++)
+                {
+                    Cells.Add(new CellModel(x, y));
+                }
+            }
         }
         #endregion
 
         #region FUNCTIONALITY
+        // CELL CLICK
+        
+
         // CELL OBTAINING FUNCTIONALITY
-        private CellModel? GetCell(int x, int y)
+        public CellModel? GetCell(int x, int y)
         {
             if (!IsInBounds(x, y))
                 return null;
@@ -56,12 +72,22 @@ namespace MVVMBattleshipGame.Grid
         #endregion
 
         #region EVENTS
-
+        public event EventHandler<CellClickEventArgs>? CellClicked;
+        private void OnCellClick(CellModel cell)
+        {
+            if (cell == null) return;
+            CellClicked?.Invoke(this, new CellClickEventArgs(cell.X, cell.Y));
+        }
         #endregion
     }
-    public class CellHitEventArgs : EventArgs
+    public class CellClickEventArgs : EventArgs
     {
-        public int Row { get; set; }
-        public int Column { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
+        public CellClickEventArgs(int x, int y)
+        {
+            X = x;
+            Y = y;
+        }
     }
 }
